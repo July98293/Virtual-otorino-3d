@@ -9,7 +9,7 @@ treating the human body as a geometric object that can be *measured, sliced,
 repaired, and quantified*.
 
 <p align="center">
-  <img src="./preview.png" height="100" alt="virtual otorino 3d preview" />
+  <img src="./preview.png" height="400" alt="virtual otorino 3d preview" />
 </p>
 
 ---
