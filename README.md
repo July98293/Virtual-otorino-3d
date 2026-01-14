@@ -8,6 +8,10 @@ The system is built to operate directly on 3D anatomy (STL / PLY meshes),
 treating the human body as a geometric object that can be *measured, sliced,
 repaired, and quantified*.
 
+<p align="center">
+  <img src="./preview.png" height="100" alt="virtual otorino 3d preview" />
+</p>
+
 ---
 
 ## What the Code Does
