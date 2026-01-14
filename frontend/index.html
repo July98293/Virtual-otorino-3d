@@ -252,7 +252,7 @@
         document.getElementById(`info_${side}`).innerText =
           "Uploading preview...";
 
-        const res = await fetch("http://127.0.0.1:8000/upload_preview", {
+        const res = await fetch("/upload_preview", {
           method: "POST",
           body: form,
         });
@@ -296,7 +296,7 @@
         document.getElementById(`info_${side}`).innerText =
           "Processing ROI & closing...";
 
-        const res = await fetch("http://127.0.0.1:8000/process", {
+        const res = await fetch("/process", {
           method: "POST",
           body: form,
         });
@@ -304,9 +304,7 @@
         state[side].volume = data.volume;
         state[side].watertight = data.watertight;
 
-        const meshRes = await fetch(
-          `http://127.0.0.1:8000/download/${data.job_id}`,
-        );
+        const meshRes = await fetch(`/download/${data.job_id}`);
         const blob = await meshRes.blob();
         const text = await blob.text();
         const closedMesh = parsePLY(text);
