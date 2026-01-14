@@ -1,0 +1,71 @@
+CONTRATTO DI UTILIZZO E SFRUTTAMENTO DI ALGORITMO SOFTWARE
+
+Tra  
+Giulia Sironi, nata a [luogo], il [data], residente in [indirizzo], di seguito “Autrice”  
+
+e  
+[Nome dell’azienda/persona], con sede in [indirizzo], P.IVA/C.F. [xxx], di seguito “Utilizzatore”
+
+si conviene e stipula quanto segue:
+
+PREMESSA – Contesto di sviluppo  
+L’Algoritmo oggetto del presente contratto è stato ideato e sviluppato da Giulia Sironi nel contesto delle attività di ricerca svolte presso il Laboratorio del Prof. Filippo Renó, all’interno dell’Ospedale San Paolo.  
+Tale contesto non comporta alcuna cessione automatica dei diritti, che restano integralmente in capo all’Autrice, come di seguito specificato.
+
+1. Oggetto  
+L’Autrice è titolare esclusiva dei diritti d’autore e di proprietà intellettuale sul codice software, sugli algoritmi, sulle architetture, sui modelli, sulle documentazioni e su ogni materiale tecnico da lei sviluppato (di seguito “Algoritmo”).
+
+Con il presente contratto, l’Autrice concede all’Utilizzatore un diritto di utilizzo dell’Algoritmo esclusivamente alle condizioni qui stabilite.
+
+2. Proprietà intellettuale  
+Tutti i diritti patrimoniali e morali sull’Algoritmo spettano a Giulia Sironi.  
+Nessuna disposizione del presente contratto può essere interpretata come cessione totale o parziale dei diritti d’autore, salvo espresso accordo scritto separato.
+
+Le Parti riconoscono inoltre che:
+
+- la paternità intellettuale dell’Algoritmo appartiene a Giulia Sironi;  
+- in virtù del contesto di sviluppo scientifico, ogni citazione, riferimento o attribuzione dell’Algoritmo in ambito tecnico, scientifico, commerciale o divulgativo dovrà includere **Giulia Sironi e Filippo Renó**;  
+- i nomi di Giulia Sironi e Filippo Renó **non possono essere rimossi, omessi o sostituiti** in alcuna forma di utilizzo, pubblicazione, presentazione, brevetto o prodotto derivato.
+
+3. Compenso e/o partecipazione economica  
+Ogni utilizzo dell’Algoritmo comporta per l’Utilizzatore l’obbligo di:
+
+- corrispondere all’Autrice un compenso pari a € [importo]  
+  oppure  
+- riconoscere all’Autrice una percentuale pari a [x]% sui ricavi, utili o proventi generati da prodotti, servizi o pubblicazioni che utilizzino l’Algoritmo.
+
+Le modalità di pagamento saranno definite tra le Parti e formalizzate per iscritto.
+
+4. Riconoscimento della paternità  
+In ogni utilizzo dell’Algoritmo, incluso ambito commerciale, scientifico o divulgativo, l’Utilizzatore è tenuto a:
+
+- riconoscere esplicitamente Giulia Sironi come creatrice dell’Algoritmo;  
+- indicare Giulia Sironi e Filippo Renó in documentazione tecnica, pubblicazioni, articoli, presentazioni, brevetti o prodotti che ne derivino;  
+- includere Giulia Sironi tra gli autori principali in caso di pubblicazioni scientifiche basate sull’Algoritmo.
+
+5. Utilizzo parziale, modificato o derivato  
+Le Parti convengono che costituisce sfruttamento dell’Algoritmo ogni utilizzo, diretto o indiretto, anche:
+
+- di una sola parte del codice;  
+- di singoli moduli, funzioni o estratti;  
+- di versioni modificate, riscritte, ottimizzate o “refactorizzate”;  
+- di opere derivate, sistemi o prodotti che incorporino anche solo concettualmente l’Algoritmo.
+
+Anche in tali casi:
+
+- l’Autrice conserva integralmente i propri diritti;  
+- resta obbligatorio il riconoscimento di Giulia Sironi e Filippo Renó;  
+- resta dovuto il compenso e/o la percentuale pattuita.
+
+Non è ammesso eludere il presente contratto mediante riscrittura, riorganizzazione o integrazione dell’Algoritmo in altri sistemi.
+
+6. Divieto di utilizzo non autorizzato  
+Ogni utilizzo dell’Algoritmo in assenza di accordo valido o in violazione delle presenti clausole costituisce violazione dei diritti d’autore e legittima l’Autrice ad agire per:
+
+- inibizione immediata dell’uso;  
+- risarcimento dei danni;  
+- riconoscimento retroattivo dei compensi dovuti.
+
+7. Legge applicabile e foro competente  
+Il presente contratto è regolato dalla legge italiana.  
+Per ogni controversia è competente in via esclusiva il Foro di [città].
