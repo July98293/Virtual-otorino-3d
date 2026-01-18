@@ -317,26 +317,26 @@
         // update joint info at bottom
         // update joint info at bottom
         if (
-          state.left &&
-          state.right &&
-          state.left.volume &&
-          state.right.volume
-        ) {
-          const volLeft = state.left.volume;
-          const volRight = state.right.volume;
-          const diffPerc = (
-            (Math.abs(volLeft - volRight) / ((volLeft + volRight) / 2)) *
-            100
-          ).toFixed(2);
-
-          document.getElementById("info").innerHTML = `
-    <div style="text-align:center; font-size:24px; font-weight:bold; line-height:1.5;">
-      Left Ear Volume: ${Math.abs(volLeft.toFixed(3))} <br>
-      Right Ear Volume: ${Math.abs(volRight.toFixed(3))} <br>
-      Difference: ${diffPerc}% 
-    </div>
-  `;
-        }
+            state.left &&
+            state.right &&
+            state.left.volume &&
+            state.right.volume
+          ) {
+            const volLeftAbs = Math.abs(state.left.volume);
+            const volRightAbs = Math.abs(state.right.volume);
+          
+            const diffPerc = (
+              ((volRightAbs - volLeftAbs) / volLeftAbs) * 100
+            ).toFixed(2);
+          
+            document.getElementById("info").innerHTML = `
+              <div style="text-align:center; font-size:24px; font-weight:bold; line-height:1.5;">
+                Left Ear Volume: ${volLeftAbs.toFixed(3)} <br>
+                Right Ear Volume: ${volRightAbs.toFixed(3)} <br>
+                Asymmetry: ${diffPerc}% 
+              </div>
+            `;
+          }
       }
     </script>
   </body>
