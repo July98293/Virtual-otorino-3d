@@ -91,7 +91,7 @@
       <div class="ear-panel" id="right-ear">
         <h3>Right Ear</h3>
         <input type="file" id="file_right" /><br />
-        ROI:<br />
+        ROI (min → max, units: mm):<br />
         X: <input id="x_min_right" value="-36" /><input
           id="x_max_right"
           value="-16"
@@ -331,9 +331,9 @@
           
             document.getElementById("info").innerHTML = `
               <div style="text-align:center; font-size:24px; font-weight:bold; line-height:1.5;">
-                Left Ear Volume: ${volLeftAbs.toFixed(3)} <br>
-                Right Ear Volume: ${volRightAbs.toFixed(3)} <br>
-                Asymmetry: ${diffPerc}% 
+                Left Ear Volume: ${volLeftAbs.toFixed(3)} mm³ <br>
+                Right Ear Volume: ${volRightAbs.toFixed(3)} mm³ <br>
+                Asymmetry: ${diffPerc}%  
               </div>
             `;
           }
