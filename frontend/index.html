@@ -58,6 +58,23 @@
         background: #1e1e1e;
         border-radius: 6px;
       }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.7);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal.hidden { display: none; }
+      
+      .modal-content {
+        background: #1e1e1e;
+        padding: 20px;
+        border-radius: 8px;
+        width: 300px;
+      }
     </style>
   </head>
 
@@ -115,6 +132,19 @@
 
       const state = { left: null, right: null };
 
+
+      function openSave() {
+        document.getElementById("saveModal").classList.remove("hidden");
+      }
+      
+      function closeSave() {
+        document.getElementById("saveModal").classList.add("hidden");
+      }
+      
+      document.getElementById("classification").onchange = (e) => {
+        const box = document.getElementById("otherBox");
+        box.classList.toggle("hidden", e.target.value !== "other");
+      };
       function parsePLY(text) {
         const lines = text.split("\n");
         let i = 0,
@@ -374,6 +404,33 @@
           `;
         }
       }
+
+      <!-- pop up-->
+            <div id="saveModal" class="modal hidden">
+              <div class="modal-content">
+                <h3>Save Analysis</h3>
+            
+                <label>
+                  Is this scanning:
+                  <select id="classification">
+                    <option value="pathological">Pathological</option>
+                    <option value="non_pathological">Non-pathological</option>
+                    <option value="other">Other</option>
+                  </select>
+                </label>
+            
+                <div id="otherBox" class="hidden">
+                  <input id="otherText" placeholder="Describe…" />
+                </div>
+            
+                <textarea id="comment" placeholder="Comment (optional)"></textarea>
+            
+                <div class="actions">
+                  <button onclick="closeSave()">Cancel</button>
+                  <button onclick="confirmSave()">Save</button>
+                </div>
+              </div>
+            </div>
 
       window.preview = preview;
       window.process = process;
