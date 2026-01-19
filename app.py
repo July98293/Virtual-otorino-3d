@@ -6,6 +6,10 @@ import os
 from istimo import extract_roi, close_all_holes
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from dotenv import load_dotenv
+load_dotenv()
+from database import init_db
+init_db()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 INPUT_DIR = os.path.join(BASE_DIR, "data", "inputs")
