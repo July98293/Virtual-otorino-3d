@@ -2,8 +2,8 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Virtual Otorino 3D</title>
-    <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+    <title>Otorino 3D</title>
+
     <style>
       body {
         font-family: sans-serif;
@@ -33,7 +33,7 @@
       }
       input {
         margin: 3px;
-        width: 60px;
+        width: 70px;
         background: #222;
         color: #eee;
         border: 1px solid #555;
@@ -60,6 +60,7 @@
       }
     </style>
   </head>
+
   <body>
     <h2 style="text-align: center">Istimo Dual Ear Processor</h2>
 
@@ -68,19 +69,16 @@
       <div class="ear-panel" id="left-ear">
         <h3>Left Ear</h3>
         <input type="file" id="file_left" /><br />
-        ROI:<br />
-        X: <input id="x_min_left" value="-36" /><input
-          id="x_max_left"
-          value="-16"
-        /><br />
-        Y: <input id="y_min_left" value="31" /><input
-          id="y_max_left"
-          value="45"
-        /><br />
-        Z: <input id="z_min_left" value="-16" /><input
-          id="z_max_left"
-          value="-1"
-        /><br />
+        ROI (min → max, units: mm):<br />
+        X:
+        <input id="x_min_left" value="-36" /> →
+        <input id="x_max_left" value="-16" /><br />
+        Y:
+        <input id="y_min_left" value="31" /> →
+        <input id="y_max_left" value="45" /><br />
+        Z:
+        <input id="z_min_left" value="-16" /> →
+        <input id="z_max_left" value="-1" /><br />
         <button onclick="preview('left')">Preview</button>
         <button onclick="process('left')">Process</button>
         <div class="viewer" id="viewer_left"></div>
@@ -92,18 +90,15 @@
         <h3>Right Ear</h3>
         <input type="file" id="file_right" /><br />
         ROI (min → max, units: mm):<br />
-        X: <input id="x_min_right" value="-36" /><input
-          id="x_max_right"
-          value="-16"
-        /><br />
-        Y: <input id="y_min_right" value="31" /><input
-          id="y_max_right"
-          value="45"
-        /><br />
-        Z: <input id="z_min_right" value="-16" /><input
-          id="z_max_right"
-          value="-1"
-        /><br />
+        X:
+        <input id="x_min_right" value="-36" /> →
+        <input id="x_max_right" value="-16" /><br />
+        Y:
+        <input id="y_min_right" value="31" /> →
+        <input id="y_max_right" value="45" /><br />
+        Z:
+        <input id="z_min_right" value="-16" /> →
+        <input id="z_max_right" value="-1" /><br />
         <button onclick="preview('right')">Preview</button>
         <button onclick="process('right')">Process</button>
         <div class="viewer" id="viewer_right"></div>
@@ -111,117 +106,22 @@
       </div>
     </div>
 
-    <!-- JOINT INFO PANEL -->
     <div id="info"></div>
 
-    <script>
+    <script type="module">
+      import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js";
+      import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/controls/OrbitControls.js";
+      import { TransformControls } from "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/controls/TransformControls.js";
+
       const state = { left: null, right: null };
-
-      function createROIBox(x_min, x_max, y_min, y_max, z_min, z_max) {
-        const vertices = [
-          [x_min, y_min, z_min],
-          [x_max, y_min, z_min],
-          [x_max, y_max, z_min],
-          [x_min, y_max, z_min],
-          [x_min, y_min, z_max],
-          [x_max, y_min, z_max],
-          [x_max, y_max, z_max],
-          [x_min, y_max, z_max],
-        ];
-        const faces = [
-          [0, 1, 2],
-          [0, 2, 3],
-          [4, 5, 6],
-          [4, 6, 7],
-          [0, 1, 5],
-          [0, 5, 4],
-          [1, 2, 6],
-          [1, 6, 5],
-          [2, 3, 7],
-          [2, 7, 6],
-          [3, 0, 4],
-          [3, 4, 7],
-        ];
-        return { vertices, faces };
-      }
-
-      function plotMesh(mesh, roiBox = null, viewerId = "viewer", title = "") {
-        const x = [],
-          y = [],
-          z = [],
-          i = [],
-          j = [],
-          k = [];
-        mesh.vertices.forEach((v) => {
-          x.push(v[0]);
-          y.push(v[1]);
-          z.push(v[2]);
-        });
-        mesh.faces.forEach((f) => {
-          i.push(f[0]);
-          j.push(f[1]);
-          k.push(f[2]);
-        });
-
-        const traces = [
-          {
-            type: "mesh3d",
-            x,
-            y,
-            z,
-            i,
-            j,
-            k,
-            opacity: 0.9,
-            color: "grey",
-            name: "Mesh",
-          },
-        ];
-
-        if (roiBox) {
-          const bx = [],
-            by = [],
-            bz = [],
-            bi = [],
-            bj = [],
-            bk = [];
-          roiBox.vertices.forEach((v) => {
-            bx.push(v[0]);
-            by.push(v[1]);
-            bz.push(v[2]);
-          });
-          roiBox.faces.forEach((f) => {
-            bi.push(f[0]);
-            bj.push(f[1]);
-            bk.push(f[2]);
-          });
-          traces.push({
-            type: "mesh3d",
-            x: bx,
-            y: by,
-            z: bz,
-            i: bi,
-            j: bj,
-            k: bk,
-            opacity: 0.3,
-            color: "yellow",
-            name: "ROI",
-          });
-        }
-
-        Plotly.newPlot(viewerId, traces, {
-          margin: { l: 0, r: 0, t: 30, b: 0 },
-          scene: { aspectmode: "data" },
-          title,
-        });
-      }
 
       function parsePLY(text) {
         const lines = text.split("\n");
         let i = 0,
           nVerts = 0,
           nFaces = 0;
-        while (!lines[i].startsWith("end_header")) {
+
+        while (i < lines.length && !lines[i].startsWith("end_header")) {
           if (lines[i].startsWith("element vertex"))
             nVerts = parseInt(lines[i].split(" ")[2]);
           if (lines[i].startsWith("element face"))
@@ -229,16 +129,165 @@
           i++;
         }
         i++;
-        const vertices = [],
-          faces = [];
-        for (let v = 0; v < nVerts; v++, i++)
-          vertices.push(lines[i].trim().split(/\s+/).map(Number));
+
+        const vertices = [];
+        const faces = [];
+
+        for (let v = 0; v < nVerts; v++, i++) {
+          const parts = lines[i].trim().split(/\s+/).map(Number);
+          vertices.push(parts.slice(0, 3));
+        }
         for (let f = 0; f < nFaces; f++, i++) {
           const parts = lines[i].trim().split(/\s+/).map(Number);
           faces.push(parts.slice(1, 4));
         }
         return { vertices, faces };
       }
+
+      function buildThreeMesh(vertices, faces, colorHex = 0x9b9b9b, opacity = 0.9) {
+        const positions = new Float32Array(faces.length * 9);
+        let p = 0;
+
+        for (const f of faces) {
+          const a = vertices[f[0]];
+          const b = vertices[f[1]];
+          const c = vertices[f[2]];
+
+          positions[p++] = a[0];
+          positions[p++] = a[1];
+          positions[p++] = a[2];
+          positions[p++] = b[0];
+          positions[p++] = b[1];
+          positions[p++] = b[2];
+          positions[p++] = c[0];
+          positions[p++] = c[1];
+          positions[p++] = c[2];
+        }
+
+        const geom = new THREE.BufferGeometry();
+        geom.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+        geom.computeVertexNormals();
+
+        const mat = new THREE.MeshStandardMaterial({
+          color: colorHex,
+          transparent: true,
+          opacity,
+          roughness: 0.9,
+          metalness: 0.0,
+          side: THREE.DoubleSide,
+        });
+
+        return new THREE.Mesh(geom, mat);
+      }
+
+      class EarViewer {
+        constructor(side) {
+          this.side = side;
+          this.container = document.getElementById(`viewer_${side}`);
+
+          this.scene = new THREE.Scene();
+          this.scene.background = new THREE.Color(0x000000);
+
+          this.camera = new THREE.PerspectiveCamera(
+            60,
+            this.container.clientWidth / this.container.clientHeight,
+            0.1,
+            100000
+          );
+          this.camera.position.set(0, 0, 200);
+
+          this.renderer = new THREE.WebGLRenderer({ antialias: true });
+          this.renderer.setSize(
+            this.container.clientWidth,
+            this.container.clientHeight
+          );
+          this.container.appendChild(this.renderer.domElement);
+
+          this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
+
+          this.scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+          const d = new THREE.DirectionalLight(0xffffff, 0.65);
+          d.position.set(1, 1, 1);
+          this.scene.add(d);
+
+          this.roiBox = new THREE.Mesh(
+            new THREE.BoxGeometry(20, 20, 20),
+            new THREE.MeshStandardMaterial({
+              color: 0xffff00,
+              transparent: true,
+              opacity: 0.3,
+            })
+          );
+          this.scene.add(this.roiBox);
+
+          this.tControls = new TransformControls(
+            this.camera,
+            this.renderer.domElement
+          );
+          this.tControls.attach(this.roiBox);
+          this.scene.add(this.tControls);
+
+          this.tControls.addEventListener("dragging-changed", (e) => {
+            this.orbit.enabled = !e.value;
+          });
+
+          this.tControls.addEventListener("objectChange", () => {
+            this.syncROIInputsFromBox();
+          });
+
+          this.meshObj = null;
+
+          this.animate = this.animate.bind(this);
+          this.animate();
+
+          this.syncROIInputsFromBox();
+        }
+
+        animate() {
+          requestAnimationFrame(this.animate);
+          this.renderer.render(this.scene, this.camera);
+        }
+
+        setMesh(vertices, faces) {
+          if (this.meshObj) this.scene.remove(this.meshObj);
+
+          this.meshObj = buildThreeMesh(vertices, faces, 0x9b9b9b, 0.9);
+          this.scene.add(this.meshObj);
+
+          const bbox = new THREE.Box3().setFromObject(this.meshObj);
+          const center = new THREE.Vector3();
+          bbox.getCenter(center);
+
+          this.orbit.target.copy(center);
+          this.roiBox.position.copy(center);
+
+          const size = new THREE.Vector3();
+          bbox.getSize(size);
+          const s = Math.max(size.x, size.y, size.z);
+          const roiEdge = s * 0.25 || 20;
+          this.roiBox.scale.set(roiEdge / 20, roiEdge / 20, roiEdge / 20);
+
+          this.syncROIInputsFromBox();
+        }
+
+        syncROIInputsFromBox() {
+          const box = new THREE.Box3().setFromObject(this.roiBox);
+          const min = box.min;
+          const max = box.max;
+
+          document.getElementById(`x_min_${this.side}`).value = min.x.toFixed(2);
+          document.getElementById(`x_max_${this.side}`).value = max.x.toFixed(2);
+          document.getElementById(`y_min_${this.side}`).value = min.y.toFixed(2);
+          document.getElementById(`y_max_${this.side}`).value = max.y.toFixed(2);
+          document.getElementById(`z_min_${this.side}`).value = min.z.toFixed(2);
+          document.getElementById(`z_max_${this.side}`).value = max.z.toFixed(2);
+        }
+      }
+
+      const viewers = {
+        left: new EarViewer("left"),
+        right: new EarViewer("right"),
+      };
 
       async function preview(side) {
         const fileInput = document.getElementById(`file_${side}`);
@@ -249,31 +298,19 @@
 
         const form = new FormData();
         form.append("file", fileInput.files[0]);
-        document.getElementById(`info_${side}`).innerText =
-          "Uploading preview...";
+
+        document.getElementById(`info_${side}`).innerText = "Uploading preview...";
 
         const res = await fetch("/upload_preview", {
           method: "POST",
           body: form,
         });
         const data = await res.json();
+
         state[side] = { job_id: data.job_id };
 
-        const roiBox = createROIBox(
-          parseFloat(document.getElementById(`x_min_${side}`).value),
-          parseFloat(document.getElementById(`x_max_${side}`).value),
-          parseFloat(document.getElementById(`y_min_${side}`).value),
-          parseFloat(document.getElementById(`y_max_${side}`).value),
-          parseFloat(document.getElementById(`z_min_${side}`).value),
-          parseFloat(document.getElementById(`z_max_${side}`).value),
-        );
+        viewers[side].setMesh(data.vertices, data.faces);
 
-        plotMesh(
-          { vertices: data.vertices, faces: data.faces },
-          roiBox,
-          `viewer_${side}`,
-          `Preview ${side} ear`,
-        );
         document.getElementById(`info_${side}`).innerText =
           `Uploaded | Watertight: ${data.watertight} | Faces: ${data.faces_count} | Vertices: ${data.vertices_count}`;
       }
@@ -301,6 +338,7 @@
           body: form,
         });
         const data = await res.json();
+
         state[side].volume = data.volume;
         state[side].watertight = data.watertight;
 
@@ -309,35 +347,36 @@
         const text = await blob.text();
         const closedMesh = parsePLY(text);
 
-        plotMesh(closedMesh, null, `viewer_${side}`, `Closed ROI ${side} ear`);
+        viewers[side].setMesh(closedMesh.vertices, closedMesh.faces);
 
-        document.getElementById("info_" + side).innerText =
-          `Closed Mesh | Volume: ${Math.abs(data.volume.toFixed(3))} | Watertight: ${data.watertight}`;
+        document.getElementById(`info_${side}`).innerText =
+          `Closed Mesh | Volume: ${Math.abs(data.volume.toFixed(3))} mm³ | Watertight: ${data.watertight}`;
 
-        // update joint info at bottom
-        // update joint info at bottom
         if (
-            state.left &&
-            state.right &&
-            state.left.volume &&
-            state.right.volume
-          ) {
-            const volLeftAbs = Math.abs(state.left.volume);
-            const volRightAbs = Math.abs(state.right.volume);
-          
-            const diffPerc = (
-              ((volRightAbs - volLeftAbs) / volLeftAbs) * 100
-            ).toFixed(2);
-          
-            document.getElementById("info").innerHTML = `
-              <div style="text-align:center; font-size:24px; font-weight:bold; line-height:1.5;">
-                Left Ear Volume: ${volLeftAbs.toFixed(3)} mm³ <br>
-                Right Ear Volume: ${volRightAbs.toFixed(3)} mm³ <br>
-                Asymmetry: ${diffPerc}%  
-              </div>
-            `;
-          }
+          state.left &&
+          state.right &&
+          state.left.volume &&
+          state.right.volume
+        ) {
+          const volLeftAbs = Math.abs(state.left.volume);
+          const volRightAbs = Math.abs(state.right.volume);
+
+          const diffPerc = (
+            ((volRightAbs - volLeftAbs) / volLeftAbs) * 100
+          ).toFixed(2);
+
+          document.getElementById("info").innerHTML = `
+            <div style="text-align:center; font-size:24px; font-weight:bold; line-height:1.5;">
+              Left Ear Volume: ${volLeftAbs.toFixed(3)} mm³ <br>
+              Right Ear Volume: ${volRightAbs.toFixed(3)} mm³ <br>
+              Asymmetry: ${diffPerc}%  
+            </div>
+          `;
+        }
       }
+
+      window.preview = preview;
+      window.process = process;
     </script>
   </body>
 </html>
