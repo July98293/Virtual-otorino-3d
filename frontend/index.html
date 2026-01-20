@@ -104,7 +104,7 @@
     <!-- LEFT EAR PANEL -->
     <div class="ear-panel" id="left-ear">
       <h3>Left Ear</h3>
-      <input type="file" onchange="test()" id="file_left" /><br />
+      <input type="file" onchange="preview('left')" id="file_left" /><br />
       ROI (min → max, units: mm):<br />
       X:
       <input id="x_min_left" value="-36" /> →
@@ -153,10 +153,6 @@
     import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/controls/OrbitControls.js";
     import { TransformControls } from "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/controls/TransformControls.js";
     const state = { left: null, right: null };
-
-    function test() {
-      alert("clicked this")
-    }
 
     function openSave() {
       document.getElementById("saveModal").classList.remove("hidden");
@@ -438,8 +434,7 @@
     
 
 
-    window.preview = preview;
-    window.test = test;
+    window.preview = preview;    
     window.process = process;
   </script>
   <div id="saveModal" class="modal hidden">
