@@ -1,439 +1,473 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>Otorino 3D</title>
 
-    <style>
-      body {
-        font-family: sans-serif;
-        margin: 0;
-        background-color: #121212;
-        color: #eee;
-      }
-      .container {
-        display: flex;
-        gap: 10px;
-        padding: 10px;
-      }
-      .ear-panel {
-        flex: 1;
-        background: #1e1e1e;
-        padding: 10px;
-        border-radius: 6px;
-      }
-      .ear-panel h3 {
-        margin: 5px 0;
-      }
-      .viewer {
-        width: 100%;
-        height: 400px;
-        border: 1px solid #333;
-        background: #000;
-      }
-      input {
-        margin: 3px;
-        width: 70px;
-        background: #222;
-        color: #eee;
-        border: 1px solid #555;
-        padding: 2px;
-        border-radius: 3px;
-      }
-      button {
-        margin: 3px;
-        padding: 4px 8px;
-        background: #333;
-        color: #eee;
-        border: none;
-        border-radius: 3px;
-        cursor: pointer;
-      }
-      button:hover {
-        background: #555;
-      }
-      #info {
-        margin: 10px;
-        padding: 10px;
-        background: #1e1e1e;
-        border-radius: 6px;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <title>Otorino 3D</title>
+    <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js"
+    }
+  }
+  </script>
 
-      .modal {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.7);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .modal.hidden { display: none; }
-      
-      .modal-content {
-        background: #1e1e1e;
-        padding: 20px;
-        border-radius: 8px;
-        width: 300px;
-      }
-    </style>
-  </head>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background-color: #121212;
+      color: #eee;
+    }
 
-  <body>
-    <h2 style="text-align: center">Istimo Dual Ear Processor</h2>
+    .container {
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+    }
 
-    <div class="container">
-      <!-- LEFT EAR PANEL -->
-      <div class="ear-panel" id="left-ear">
-        <h3>Left Ear</h3>
-        <input type="file" id="file_left" /><br />
-        ROI (min → max, units: mm):<br />
-        X:
-        <input id="x_min_left" value="-36" /> →
-        <input id="x_max_left" value="-16" /><br />
-        Y:
-        <input id="y_min_left" value="31" /> →
-        <input id="y_max_left" value="45" /><br />
-        Z:
-        <input id="z_min_left" value="-16" /> →
-        <input id="z_max_left" value="-1" /><br />
-        <button onclick="preview('left')">Preview</button>
-        <button onclick="process('left')">Process</button>
-        <div class="viewer" id="viewer_left"></div>
-        <div id="info_left"></div>
-      </div>
+    .ear-panel {
+      flex: 1;
+      background: #1e1e1e;
+      padding: 10px;
+      border-radius: 6px;
+    }
 
-      <!-- RIGHT EAR PANEL -->
-      <div class="ear-panel" id="right-ear">
-        <h3>Right Ear</h3>
-        <input type="file" id="file_right" /><br />
-        ROI (min → max, units: mm):<br />
-        X:
-        <input id="x_min_right" value="-36" /> →
-        <input id="x_max_right" value="-16" /><br />
-        Y:
-        <input id="y_min_right" value="31" /> →
-        <input id="y_max_right" value="45" /><br />
-        Z:
-        <input id="z_min_right" value="-16" /> →
-        <input id="z_max_right" value="-1" /><br />
-        <button onclick="preview('right')">Preview</button>
-        <button onclick="process('right')">Process</button>
-        <div class="viewer" id="viewer_right"></div>
-        <div id="info_right"></div>
-      </div>
+    .ear-panel h3 {
+      margin: 5px 0;
+    }
+
+    .viewer {
+      width: 100%;
+      height: 400px;
+      border: 1px solid #333;
+      background: #000;
+    }
+
+    input {
+      margin: 3px;
+      width: 70px;
+      background: #222;
+      color: #eee;
+      border: 1px solid #555;
+      padding: 2px;
+      border-radius: 3px;
+    }
+
+    button {
+      margin: 3px;
+      padding: 4px 8px;
+      background: #333;
+      color: #eee;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #555;
+    }
+
+    #info {
+      margin: 10px;
+      padding: 10px;
+      background: #1e1e1e;
+      border-radius: 6px;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal.hidden {
+      display: none;
+    }
+
+    .modal-content {
+      background: #1e1e1e;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+    }
+  </style>
+</head>
+
+<body>
+  <h2 style="text-align: center">Istimo Dual Ear Processor</h2>
+
+  <div class="container">
+    <!-- LEFT EAR PANEL -->
+    <div class="ear-panel" id="left-ear">
+      <h3>Left Ear</h3>
+      <input type="file" onchange="test()" id="file_left" /><br />
+      ROI (min → max, units: mm):<br />
+      X:
+      <input id="x_min_left" value="-36" /> →
+      <input id="x_max_left" value="-16" /><br />
+      Y:
+      <input id="y_min_left" value="31" /> →
+      <input id="y_max_left" value="45" /><br />
+      Z:
+      <input id="z_min_left" value="-16" /> →
+      <input id="z_max_left" value="-1" /><br />
+      <button onclick="preview('left')">Preview</button>
+      <button onclick="process('left')">Process</button>
+      <div class="viewer" id="viewer_left"></div>
+      <div id="info_left"></div>
     </div>
 
-    <div id="info"></div>
+    <!-- RIGHT EAR PANEL -->
+    <div class="ear-panel" id="right-ear">
+      <h3>Right Ear</h3>
+      <input type="file" id="file_right" /><br />
+      ROI (min → max, units: mm):<br />
+      X:
+      <input id="x_min_right" value="-36" /> →
+      <input id="x_max_right" value="-16" /><br />
+      Y:
+      <input id="y_min_right" value="31" /> →
+      <input id="y_max_right" value="45" /><br />
+      Z:
+      <input id="z_min_right" value="-16" /> →
+      <input id="z_max_right" value="-1" /><br />
+      <button onclick="preview('right')">Preview</button>
+      <button onclick="process('right')">Process</button>
+      <div class="viewer" id="viewer_right"></div>
+      <div id="info_right"></div>
+    </div>
+  </div>
 
-    <script type="module">
-      import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js";
-      import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/controls/OrbitControls.js";
-      import { TransformControls } from "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/controls/TransformControls.js";
-
-      const state = { left: null, right: null };
+  <div id="info"></div>
 
 
-      function openSave() {
-        document.getElementById("saveModal").classList.remove("hidden");
-      }
-      
-      function closeSave() {
-        document.getElementById("saveModal").classList.add("hidden");
-      }
-      
-      document.getElementById("classification").onchange = (e) => {
-        const box = document.getElementById("otherBox");
-        box.classList.toggle("hidden", e.target.value !== "other");
-      };
-      function parsePLY(text) {
-        const lines = text.split("\n");
-        let i = 0,
-          nVerts = 0,
-          nFaces = 0;
 
-        while (i < lines.length && !lines[i].startsWith("end_header")) {
-          if (lines[i].startsWith("element vertex"))
-            nVerts = parseInt(lines[i].split(" ")[2]);
-          if (lines[i].startsWith("element face"))
-            nFaces = parseInt(lines[i].split(" ")[2]);
-          i++;
-        }
+
+  
+  <script type="module">
+    import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js";
+    import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/controls/OrbitControls.js";
+    import { TransformControls } from "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/controls/TransformControls.js";
+    const state = { left: null, right: null };
+
+    function test() {
+      alert("clicked this")
+    }
+
+    function openSave() {
+      document.getElementById("saveModal").classList.remove("hidden");
+    }
+
+    function closeSave() {
+      document.getElementById("saveModal").classList.add("hidden");
+    }
+
+    document.getElementById("classification").onchange = (e) => {
+      const box = document.getElementById("otherBox");
+      box.classList.toggle("hidden", e.target.value !== "other");
+    };
+    function parsePLY(text) {
+      const lines = text.split("\n");
+      let i = 0,
+        nVerts = 0,
+        nFaces = 0;
+
+      while (i < lines.length && !lines[i].startsWith("end_header")) {
+        if (lines[i].startsWith("element vertex"))
+          nVerts = parseInt(lines[i].split(" ")[2]);
+        if (lines[i].startsWith("element face"))
+          nFaces = parseInt(lines[i].split(" ")[2]);
         i++;
+      }
+      i++;
 
-        const vertices = [];
-        const faces = [];
+      const vertices = [];
+      const faces = [];
 
-        for (let v = 0; v < nVerts; v++, i++) {
-          const parts = lines[i].trim().split(/\s+/).map(Number);
-          vertices.push(parts.slice(0, 3));
-        }
-        for (let f = 0; f < nFaces; f++, i++) {
-          const parts = lines[i].trim().split(/\s+/).map(Number);
-          faces.push(parts.slice(1, 4));
-        }
-        return { vertices, faces };
+      for (let v = 0; v < nVerts; v++, i++) {
+        const parts = lines[i].trim().split(/\s+/).map(Number);
+        vertices.push(parts.slice(0, 3));
+      }
+      for (let f = 0; f < nFaces; f++, i++) {
+        const parts = lines[i].trim().split(/\s+/).map(Number);
+        faces.push(parts.slice(1, 4));
+      }
+      return { vertices, faces };
+    }
+
+    function buildThreeMesh(vertices, faces, colorHex = 0x9b9b9b, opacity = 0.9) {
+      const positions = new Float32Array(faces.length * 9);
+      let p = 0;
+
+      for (const f of faces) {
+        const a = vertices[f[0]];
+        const b = vertices[f[1]];
+        const c = vertices[f[2]];
+
+        positions[p++] = a[0];
+        positions[p++] = a[1];
+        positions[p++] = a[2];
+        positions[p++] = b[0];
+        positions[p++] = b[1];
+        positions[p++] = b[2];
+        positions[p++] = c[0];
+        positions[p++] = c[1];
+        positions[p++] = c[2];
       }
 
-      function buildThreeMesh(vertices, faces, colorHex = 0x9b9b9b, opacity = 0.9) {
-        const positions = new Float32Array(faces.length * 9);
-        let p = 0;
+      const geom = new THREE.BufferGeometry();
+      geom.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      geom.computeVertexNormals();
 
-        for (const f of faces) {
-          const a = vertices[f[0]];
-          const b = vertices[f[1]];
-          const c = vertices[f[2]];
+      const mat = new THREE.MeshStandardMaterial({
+        color: colorHex,
+        transparent: true,
+        opacity,
+        roughness: 0.9,
+        metalness: 0.0,
+        side: THREE.DoubleSide,
+      });
 
-          positions[p++] = a[0];
-          positions[p++] = a[1];
-          positions[p++] = a[2];
-          positions[p++] = b[0];
-          positions[p++] = b[1];
-          positions[p++] = b[2];
-          positions[p++] = c[0];
-          positions[p++] = c[1];
-          positions[p++] = c[2];
-        }
+      return new THREE.Mesh(geom, mat);
+    }
 
-        const geom = new THREE.BufferGeometry();
-        geom.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-        geom.computeVertexNormals();
+    class EarViewer {
+      constructor(side) {
+        this.side = side;
+        this.container = document.getElementById(`viewer_${side}`);
 
-        const mat = new THREE.MeshStandardMaterial({
-          color: colorHex,
-          transparent: true,
-          opacity,
-          roughness: 0.9,
-          metalness: 0.0,
-          side: THREE.DoubleSide,
+        this.scene = new THREE.Scene();
+        this.scene.background = new THREE.Color(0x000000);
+
+        this.camera = new THREE.PerspectiveCamera(
+          60,
+          this.container.clientWidth / this.container.clientHeight,
+          0.1,
+          100000
+        );
+        this.camera.position.set(0, 0, 200);
+
+        this.renderer = new THREE.WebGLRenderer({ antialias: true });
+        this.renderer.setSize(
+          this.container.clientWidth,
+          this.container.clientHeight
+        );
+        this.container.appendChild(this.renderer.domElement);
+
+        this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
+
+        this.scene.add(new THREE.AmbientLight(0xffffff, 0.65));
+        const d = new THREE.DirectionalLight(0xffffff, 0.65);
+        d.position.set(1, 1, 1);
+        this.scene.add(d);
+
+        this.roiBox = new THREE.Mesh(
+          new THREE.BoxGeometry(20, 20, 20),
+          new THREE.MeshStandardMaterial({
+            color: 0xffff00,
+            transparent: true,
+            opacity: 0.3,
+          })
+        );
+        this.scene.add(this.roiBox);
+
+        this.tControls = new TransformControls(
+          this.camera,
+          this.renderer.domElement
+        );
+        this.tControls.attach(this.roiBox);
+        window.addEventListener("keydown", (e) => {
+          if (e.key === "s") this.tControls.setMode("scale");
+          if (e.key === "t") this.tControls.setMode("translate");
+          if (e.key === "r") this.tControls.setMode("rotate");
         });
 
-        return new THREE.Mesh(geom, mat);
-      }
+        this.scene.add(this.tControls);
 
-      class EarViewer {
-        constructor(side) {
-          this.side = side;
-          this.container = document.getElementById(`viewer_${side}`);
+        this.tControls.addEventListener("dragging-changed", (e) => {
+          this.orbit.enabled = !e.value;
+        });
 
-          this.scene = new THREE.Scene();
-          this.scene.background = new THREE.Color(0x000000);
-
-          this.camera = new THREE.PerspectiveCamera(
-            60,
-            this.container.clientWidth / this.container.clientHeight,
-            0.1,
-            100000
-          );
-          this.camera.position.set(0, 0, 200);
-
-          this.renderer = new THREE.WebGLRenderer({ antialias: true });
-          this.renderer.setSize(
-            this.container.clientWidth,
-            this.container.clientHeight
-          );
-          this.container.appendChild(this.renderer.domElement);
-
-          this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
-
-          this.scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-          const d = new THREE.DirectionalLight(0xffffff, 0.65);
-          d.position.set(1, 1, 1);
-          this.scene.add(d);
-
-          this.roiBox = new THREE.Mesh(
-            new THREE.BoxGeometry(20, 20, 20),
-            new THREE.MeshStandardMaterial({
-              color: 0xffff00,
-              transparent: true,
-              opacity: 0.3,
-            })
-          );
-          this.scene.add(this.roiBox);
-
-          this.tControls = new TransformControls(
-            this.camera,
-            this.renderer.domElement
-          );
-          this.tControls.attach(this.roiBox);
-          this.scene.add(this.tControls);
-
-          this.tControls.addEventListener("dragging-changed", (e) => {
-            this.orbit.enabled = !e.value;
-          });
-
-          this.tControls.addEventListener("objectChange", () => {
-            this.syncROIInputsFromBox();
-          });
-
-          this.meshObj = null;
-
-          this.animate = this.animate.bind(this);
-          this.animate();
-
+        this.tControls.addEventListener("objectChange", () => {
           this.syncROIInputsFromBox();
-        }
+        });
 
-        animate() {
-          requestAnimationFrame(this.animate);
-          this.renderer.render(this.scene, this.camera);
-        }
+        this.meshObj = null;
 
-        setMesh(vertices, faces) {
-          if (this.meshObj) this.scene.remove(this.meshObj);
+        this.animate = this.animate.bind(this);
+        this.animate();
 
-          this.meshObj = buildThreeMesh(vertices, faces, 0x9b9b9b, 0.9);
-          this.scene.add(this.meshObj);
-
-          const bbox = new THREE.Box3().setFromObject(this.meshObj);
-          const center = new THREE.Vector3();
-          bbox.getCenter(center);
-
-          this.orbit.target.copy(center);
-          this.roiBox.position.copy(center);
-
-          const size = new THREE.Vector3();
-          bbox.getSize(size);
-          const s = Math.max(size.x, size.y, size.z);
-          const roiEdge = s * 0.25 || 20;
-          this.roiBox.scale.set(roiEdge / 20, roiEdge / 20, roiEdge / 20);
-
-          this.syncROIInputsFromBox();
-        }
-
-        syncROIInputsFromBox() {
-          const box = new THREE.Box3().setFromObject(this.roiBox);
-          const min = box.min;
-          const max = box.max;
-
-          document.getElementById(`x_min_${this.side}`).value = min.x.toFixed(2);
-          document.getElementById(`x_max_${this.side}`).value = max.x.toFixed(2);
-          document.getElementById(`y_min_${this.side}`).value = min.y.toFixed(2);
-          document.getElementById(`y_max_${this.side}`).value = max.y.toFixed(2);
-          document.getElementById(`z_min_${this.side}`).value = min.z.toFixed(2);
-          document.getElementById(`z_max_${this.side}`).value = max.z.toFixed(2);
-        }
+        this.syncROIInputsFromBox();
       }
 
-      const viewers = {
-        left: new EarViewer("left"),
-        right: new EarViewer("right"),
-      };
-
-      async function preview(side) {
-        const fileInput = document.getElementById(`file_${side}`);
-        if (!fileInput.files.length) {
-          alert("Upload a mesh first");
-          return;
-        }
-
-        const form = new FormData();
-        form.append("file", fileInput.files[0]);
-
-        document.getElementById(`info_${side}`).innerText = "Uploading preview...";
-
-        const res = await fetch("/upload_preview", {
-          method: "POST",
-          body: form,
-        });
-        const data = await res.json();
-
-        state[side] = { job_id: data.job_id };
-
-        viewers[side].setMesh(data.vertices, data.faces);
-
-        document.getElementById(`info_${side}`).innerText =
-          `Uploaded | Watertight: ${data.watertight} | Faces: ${data.faces_count} | Vertices: ${data.vertices_count}`;
+      animate() {
+        requestAnimationFrame(this.animate);
+        this.renderer.render(this.scene, this.camera);
       }
 
-      async function process(side) {
-        if (!state[side] || !state[side].job_id) {
-          alert("Preview first!");
-          return;
-        }
+      setMesh(vertices, faces) {
+        if (this.meshObj) this.scene.remove(this.meshObj);
 
-        const form = new FormData();
-        form.append("job_id", state[side].job_id);
-        form.append("x_min", document.getElementById(`x_min_${side}`).value);
-        form.append("x_max", document.getElementById(`x_max_${side}`).value);
-        form.append("y_min", document.getElementById(`y_min_${side}`).value);
-        form.append("y_max", document.getElementById(`y_max_${side}`).value);
-        form.append("z_min", document.getElementById(`z_min_${side}`).value);
-        form.append("z_max", document.getElementById(`z_max_${side}`).value);
+        this.meshObj = buildThreeMesh(vertices, faces, 0x9b9b9b, 0.9);
+        this.scene.add(this.meshObj);
 
-        document.getElementById(`info_${side}`).innerText =
-          "Processing ROI & closing...";
+        const bbox = new THREE.Box3().setFromObject(this.meshObj);
+        const center = new THREE.Vector3();
+        bbox.getCenter(center);
 
-        const res = await fetch("/process", {
-          method: "POST",
-          body: form,
-        });
-        const data = await res.json();
+        this.orbit.target.copy(center);
+        this.roiBox.position.copy(center);
 
-        state[side].volume = data.volume;
-        state[side].watertight = data.watertight;
+        const size = new THREE.Vector3();
+        bbox.getSize(size);
+        const s = Math.max(size.x, size.y, size.z);
+        const roiEdge = s * 0.25 || 20;
+        this.roiBox.scale.set(roiEdge / 20, roiEdge / 20, roiEdge / 20);
 
-        const meshRes = await fetch(`/download/${data.job_id}`);
-        const blob = await meshRes.blob();
-        const text = await blob.text();
-        const closedMesh = parsePLY(text);
+        this.syncROIInputsFromBox();
+      }
 
-        viewers[side].setMesh(closedMesh.vertices, closedMesh.faces);
+      syncROIInputsFromBox() {
+        const box = new THREE.Box3().setFromObject(this.roiBox);
+        const min = box.min;
+        const max = box.max;
 
-        document.getElementById(`info_${side}`).innerText =
-          `Closed Mesh | Volume: ${Math.abs(data.volume.toFixed(3))} mm³ | Watertight: ${data.watertight}`;
+        document.getElementById(`x_min_${this.side}`).value = min.x.toFixed(2);
+        document.getElementById(`x_max_${this.side}`).value = max.x.toFixed(2);
+        document.getElementById(`y_min_${this.side}`).value = min.y.toFixed(2);
+        document.getElementById(`y_max_${this.side}`).value = max.y.toFixed(2);
+        document.getElementById(`z_min_${this.side}`).value = min.z.toFixed(2);
+        document.getElementById(`z_max_${this.side}`).value = max.z.toFixed(2);
+      }
+    }
 
-        if (
-          state.left &&
-          state.right &&
-          state.left.volume &&
-          state.right.volume
-        ) {
-          const volLeftAbs = Math.abs(state.left.volume);
-          const volRightAbs = Math.abs(state.right.volume);
+    const viewers = {
+      left: new EarViewer("left"),
+      right: new EarViewer("right"),
+    };
 
-          const diffPerc = (
-            ((volRightAbs - volLeftAbs) / volLeftAbs) * 100
-          ).toFixed(2);
+    async function preview(side) {
+      const fileInput = document.getElementById(`file_${side}`);
+      if (!fileInput.files.length) {
+        alert("Upload a mesh first");
+        return;
+      }
 
-          document.getElementById("info").innerHTML = `
+      const form = new FormData();
+      form.append("file", fileInput.files[0]);
+
+      document.getElementById(`info_${side}`).innerText = "Uploading preview...";
+
+      const res = await fetch("/upload_preview", {
+        method: "POST",
+        body: form,
+      });
+      const data = await res.json();
+
+      state[side] = { job_id: data.job_id };
+
+      viewers[side].setMesh(data.vertices, data.faces);
+
+      document.getElementById(`info_${side}`).innerText =
+        `Uploaded | Watertight: ${data.watertight} | Faces: ${data.faces_count} | Vertices: ${data.vertices_count}`;
+    }
+
+    async function process(side) {
+      if (!state[side] || !state[side].job_id) {
+        alert("Preview first!");
+        return;
+      }
+
+      const form = new FormData();
+      form.append("job_id", state[side].job_id);
+      form.append("x_min", document.getElementById(`x_min_${side}`).value);
+      form.append("x_max", document.getElementById(`x_max_${side}`).value);
+      form.append("y_min", document.getElementById(`y_min_${side}`).value);
+      form.append("y_max", document.getElementById(`y_max_${side}`).value);
+      form.append("z_min", document.getElementById(`z_min_${side}`).value);
+      form.append("z_max", document.getElementById(`z_max_${side}`).value);
+
+      document.getElementById(`info_${side}`).innerText =
+        "Processing ROI & closing...";
+
+      const res = await fetch("/process", {
+        method: "POST",
+        body: form,
+      });
+      const data = await res.json();
+
+      state[side].volume = data.volume;
+      state[side].watertight = data.watertight;
+
+      const meshRes = await fetch(`/download/${data.job_id}`);
+      const blob = await meshRes.blob();
+      const text = await blob.text();
+      const closedMesh = parsePLY(text);
+
+      viewers[side].setMesh(closedMesh.vertices, closedMesh.faces);
+
+      document.getElementById(`info_${side}`).innerText =
+        `Closed Mesh | Volume: ${Math.abs(data.volume.toFixed(3))} mm³ | Watertight: ${data.watertight}`;
+
+      if (
+        state.left &&
+        state.right &&
+        state.left.volume &&
+        state.right.volume
+      ) {
+        const volLeftAbs = Math.abs(state.left.volume);
+        const volRightAbs = Math.abs(state.right.volume);
+
+        const diffPerc = (
+          ((volRightAbs - volLeftAbs) / volLeftAbs) * 100
+        ).toFixed(2);
+
+        document.getElementById("info").innerHTML = `
             <div style="text-align:center; font-size:24px; font-weight:bold; line-height:1.5;">
               Left Ear Volume: ${volLeftAbs.toFixed(3)} mm³ <br>
               Right Ear Volume: ${volRightAbs.toFixed(3)} mm³ <br>
               Asymmetry: ${diffPerc}%  
             </div>
           `;
-        }
       }
+    }
+    
 
-      <!-- pop up-->
-            <div id="saveModal" class="modal hidden">
-              <div class="modal-content">
-                <h3>Save Analysis</h3>
-            
-                <label>
-                  Is this scanning:
-                  <select id="classification">
-                    <option value="pathological">Pathological</option>
-                    <option value="non_pathological">Non-pathological</option>
-                    <option value="other">Other</option>
-                  </select>
-                </label>
-            
-                <div id="otherBox" class="hidden">
-                  <input id="otherText" placeholder="Describe…" />
-                </div>
-            
-                <textarea id="comment" placeholder="Comment (optional)"></textarea>
-            
-                <div class="actions">
-                  <button onclick="closeSave()">Cancel</button>
-                  <button onclick="confirmSave()">Save</button>
-                </div>
-              </div>
-            </div>
 
-      window.preview = preview;
-      window.process = process;
-    </script>
-  </body>
+    window.preview = preview;
+    window.test = test;
+    window.process = process;
+  </script>
+  <div id="saveModal" class="modal hidden">
+      <div class="modal-content">
+        <h3>Save Analysis</h3>
+
+        <label>
+          Is this scanning:
+          <select id="classification">
+            <option value="pathological">Pathological</option>
+            <option value="non_pathological">Non-pathological</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+
+        <div id="otherBox" class="hidden">
+          <input id="otherText" placeholder="Describe…" />
+        </div>
+
+        <textarea id="comment" placeholder="Comment (optional)"></textarea>
+
+        <div class="actions">
+          <button onclick="closeSave()">Cancel</button>
+          <button onclick="confirmSave()">Save</button>
+        </div>
+      </div>
+    </div>
+</body>
+<!-- pop up-->
+    
 </html>
