@@ -8,4 +8,4 @@ matplotlib>=3.7
 fastapi
 uvicorn[standard]
 python-multipart
-psycopg
+psycopg[binary]
