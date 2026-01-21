@@ -3,8 +3,8 @@
 
 <head>
   <meta charset="UTF-8" />
-  <title>Otorino 3D</title>
-    <script type="importmap">
+  <title>Otorino 3D Brush ROI</title>
+  <script type="importmap">
   {
     "imports": {
       "three": "https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js"
@@ -28,6 +28,7 @@
 
     .ear-panel {
       flex: 1;
+      position: relative;
       background: #1e1e1e;
       padding: 10px;
       border-radius: 6px;
@@ -44,28 +45,27 @@
       background: #000;
     }
 
-    input {
+    input,
+    button {
       margin: 3px;
-      width: 70px;
+      border-radius: 3px;
+      padding: 2px 4px;
       background: #222;
       color: #eee;
       border: 1px solid #555;
-      padding: 2px;
-      border-radius: 3px;
-    }
-
-    button {
-      margin: 3px;
-      padding: 4px 8px;
-      background: #333;
-      color: #eee;
-      border: none;
-      border-radius: 3px;
-      cursor: pointer;
     }
 
     button:hover {
       background: #555;
+    }
+
+    .saveButton {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 5rem;
+      height: 2rem;
+      font-size: 1.2rem;
     }
 
     #info {
@@ -75,48 +75,53 @@
       border-radius: 6px;
     }
 
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .brush-controls {
+      margin: 5px 0;
     }
 
-    .modal.hidden {
-      display: none;
+    .previewButton {
+      width: 5rem;
+      height: 2rem;
+      background-color: #666666;
     }
 
-    .modal-content {
-      background: #1e1e1e;
-      padding: 20px;
-      border-radius: 8px;
-      width: 300px;
+    .processButton {
+      width: auto;
+      height: 2rem;
+      background-color: purple;
     }
   </style>
 </head>
 
 <body>
-  <h2 style="text-align: center">Istimo Dual Ear Processor</h2>
+  <section style="padding: 0.5rem; padding-left: 1rem;">
+    <h2 style="text-align:center">Virtual otorino (Lab Renó)</h2>
+    <p>
+      App by Giulia Sironi <br>
+      For issue contact <a href="mailto:giulia.sironi.02@gmail.com">
+        giulia.sironi.02@gmail.com
+      </a>
+    </p>
+  </section>
+
 
   <div class="container">
     <!-- LEFT EAR PANEL -->
     <div class="ear-panel" id="left-ear">
       <h3>Left Ear</h3>
       <input type="file" onchange="preview('left')" id="file_left" /><br />
-      ROI (min → max, units: mm):<br />
-      X:
-      <input id="x_min_left" value="-36" /> →
-      <input id="x_max_left" value="-16" /><br />
-      Y:
-      <input id="y_min_left" value="31" /> →
-      <input id="y_max_left" value="45" /><br />
-      Z:
-      <input id="z_min_left" value="-16" /> →
-      <input id="z_max_left" value="-1" /><br />
-      <button onclick="preview('left')">Preview</button>
-      <button onclick="process('left')">Process</button>
+      <div class="brush-controls">
+        <button id="toggleBrush_left" onclick="toggleBrush('left')">Brush Mode OFF</button>
+        <button id="toggleEraser_left" onclick="toggleEraser('left')">Eraser OFF</button>
+        <button onclick="clearBrush('left')">Clear Brush</button>
+        <label>Brush size:
+          <input type="range" id="brushSize_left" min="1" max="20" value="5">
+        </label>
+      </div>
+
+      <button class="previewButton" onclick="preview('left')">Preview</button>
+      <button class="processButton" onclick="processBrush('left')">Process Painted ROI</button>
+      <button id="saveBtn_left" class="saveButton" onclick="openSaveModal('left')" disabled>Save</button>
       <div class="viewer" id="viewer_left"></div>
       <div id="info_left"></div>
     </div>
@@ -124,19 +129,20 @@
     <!-- RIGHT EAR PANEL -->
     <div class="ear-panel" id="right-ear">
       <h3>Right Ear</h3>
-      <input type="file" id="file_right" /><br />
-      ROI (min → max, units: mm):<br />
-      X:
-      <input id="x_min_right" value="-36" /> →
-      <input id="x_max_right" value="-16" /><br />
-      Y:
-      <input id="y_min_right" value="31" /> →
-      <input id="y_max_right" value="45" /><br />
-      Z:
-      <input id="z_min_right" value="-16" /> →
-      <input id="z_max_right" value="-1" /><br />
-      <button onclick="preview('right')">Preview</button>
-      <button onclick="process('right')">Process</button>
+      <input type="file" onchange="preview('right')" id="file_right" /><br />
+      <div class="brush-controls">
+        <button id="toggleBrush_right" onclick="toggleBrush('right')">Brush Mode OFF</button>
+        <button id="toggleEraser_right" onclick="toggleEraser('right')">Eraser OFF</button>
+        <button onclick="clearBrush('right')">Clear Brush</button>
+        <label>Brush size:
+          <input type="range" id="brushSize_right" min="1" max="20" value="5">
+        </label>
+      </div>
+
+      <button class="previewButton" onclick="preview('right')">Preview</button>
+      <button class="processButton" onclick="processBrush('right')">Process Painted ROI</button>
+      <button id="saveBtn_right" class="saveButton" onclick="openSaveModal('right')" disabled>Save</button>
+
       <div class="viewer" id="viewer_right"></div>
       <div id="info_right"></div>
     </div>
@@ -144,90 +150,42 @@
 
   <div id="info"></div>
 
-
-
-
-  
   <script type="module">
-    import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160/build/three.module.js";
+    import * as THREE from "three";
     import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/controls/OrbitControls.js";
-    import { TransformControls } from "https://cdn.jsdelivr.net/npm/three@0.160/examples/jsm/controls/TransformControls.js";
+
     const state = { left: null, right: null };
 
-    function openSave() {
-      document.getElementById("saveModal").classList.remove("hidden");
-    }
-
-    function closeSave() {
-      document.getElementById("saveModal").classList.add("hidden");
-    }
-
-    document.getElementById("classification").onchange = (e) => {
-      const box = document.getElementById("otherBox");
-      box.classList.toggle("hidden", e.target.value !== "other");
-    };
     function parsePLY(text) {
       const lines = text.split("\n");
-      let i = 0,
-        nVerts = 0,
-        nFaces = 0;
-
+      let i = 0, nVerts = 0, nFaces = 0;
       while (i < lines.length && !lines[i].startsWith("end_header")) {
-        if (lines[i].startsWith("element vertex"))
-          nVerts = parseInt(lines[i].split(" ")[2]);
-        if (lines[i].startsWith("element face"))
-          nFaces = parseInt(lines[i].split(" ")[2]);
+        if (lines[i].startsWith("element vertex")) nVerts = parseInt(lines[i].split(" ")[2]);
+        if (lines[i].startsWith("element face")) nFaces = parseInt(lines[i].split(" ")[2]);
         i++;
       }
       i++;
-
       const vertices = [];
       const faces = [];
-
-      for (let v = 0; v < nVerts; v++, i++) {
-        const parts = lines[i].trim().split(/\s+/).map(Number);
-        vertices.push(parts.slice(0, 3));
-      }
-      for (let f = 0; f < nFaces; f++, i++) {
-        const parts = lines[i].trim().split(/\s+/).map(Number);
-        faces.push(parts.slice(1, 4));
-      }
+      for (let v = 0; v < nVerts; v++, i++) { vertices.push(lines[i].trim().split(/\s+/).map(Number).slice(0, 3)); }
+      for (let f = 0; f < nFaces; f++, i++) { faces.push(lines[i].trim().split(/\s+/).slice(1, 4).map(Number)); }
       return { vertices, faces };
     }
 
-    function buildThreeMesh(vertices, faces, colorHex = 0x9b9b9b, opacity = 0.9) {
-      const positions = new Float32Array(faces.length * 9);
-      let p = 0;
-
-      for (const f of faces) {
-        const a = vertices[f[0]];
-        const b = vertices[f[1]];
-        const c = vertices[f[2]];
-
-        positions[p++] = a[0];
-        positions[p++] = a[1];
-        positions[p++] = a[2];
-        positions[p++] = b[0];
-        positions[p++] = b[1];
-        positions[p++] = b[2];
-        positions[p++] = c[0];
-        positions[p++] = c[1];
-        positions[p++] = c[2];
-      }
-
+    function buildMesh(vertices, faces) {
       const geom = new THREE.BufferGeometry();
-      geom.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      const pos = new Float32Array(faces.length * 9);
+      const colors = new Float32Array(faces.length * 9);
+      let p = 0;
+      for (const f of faces) {
+        const a = vertices[f[0]], b = vertices[f[1]], c = vertices[f[2]];
+        pos.set([...a, ...b, ...c], p); p += 9;
+        for (let k = 0; k < 9; k++) { colors[p - 9 + k] = 0.61; }
+      }
+      geom.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+      geom.setAttribute('color', new THREE.BufferAttribute(colors, 3));
       geom.computeVertexNormals();
-
-      const mat = new THREE.MeshStandardMaterial({
-        color: colorHex,
-        transparent: true,
-        opacity,
-        roughness: 0.9,
-        metalness: 0.0,
-        side: THREE.DoubleSide,
-      });
-
+      const mat = new THREE.MeshStandardMaterial({ vertexColors: true, side: THREE.DoubleSide, transparent: true, opacity: 0.9 });
       return new THREE.Mesh(geom, mat);
     }
 
@@ -235,171 +193,192 @@
       constructor(side) {
         this.side = side;
         this.container = document.getElementById(`viewer_${side}`);
-
         this.scene = new THREE.Scene();
         this.scene.background = new THREE.Color(0x000000);
-
-        this.camera = new THREE.PerspectiveCamera(
-          60,
-          this.container.clientWidth / this.container.clientHeight,
-          0.1,
-          100000
-        );
+        this.camera = new THREE.PerspectiveCamera(60, this.container.clientWidth / this.container.clientHeight, 0.1, 100000);
         this.camera.position.set(0, 0, 200);
-
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.setSize(
-          this.container.clientWidth,
-          this.container.clientHeight
-        );
+        this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
         this.container.appendChild(this.renderer.domElement);
-
         this.orbit = new OrbitControls(this.camera, this.renderer.domElement);
-
-        this.scene.add(new THREE.AmbientLight(0xffffff, 0.65));
-        const d = new THREE.DirectionalLight(0xffffff, 0.65);
-        d.position.set(1, 1, 1);
-        this.scene.add(d);
-
-        this.roiBox = new THREE.Mesh(
-          new THREE.BoxGeometry(20, 20, 20),
-          new THREE.MeshStandardMaterial({
-            color: 0xffff00,
-            transparent: true,
-            opacity: 0.3,
-          })
-        );
-        this.scene.add(this.roiBox);
-
-        this.tControls = new TransformControls(
-          this.camera,
-          this.renderer.domElement
-        );
-        this.tControls.attach(this.roiBox);
-        window.addEventListener("keydown", (e) => {
-          if (e.key === "s") this.tControls.setMode("scale");
-          if (e.key === "t") this.tControls.setMode("translate");
-          if (e.key === "r") this.tControls.setMode("rotate");
-        });
-
-        this.scene.add(this.tControls);
-
-        this.tControls.addEventListener("dragging-changed", (e) => {
-          this.orbit.enabled = !e.value;
-        });
-
-        this.tControls.addEventListener("objectChange", () => {
-          this.syncROIInputsFromBox();
-        });
-
+        this.scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+        const d = new THREE.DirectionalLight(0xffffff, 0.6); d.position.set(1, 1, 1); this.scene.add(d);
         this.meshObj = null;
-
-        this.animate = this.animate.bind(this);
+        this.brushEnabled = false;
+        this.eraserEnabled = false;
+        this.brushRadius = 5;
+        this.selectedFaces = new Set();
+        this.raycaster = new THREE.Raycaster();
+        this.mouse = new THREE.Vector2();
+        this.animate = () => { requestAnimationFrame(this.animate); this.renderer.render(this.scene, this.camera); };
         this.animate();
 
-        this.syncROIInputsFromBox();
-      }
-
-      animate() {
-        requestAnimationFrame(this.animate);
-        this.renderer.render(this.scene, this.camera);
+        this.renderer.domElement.addEventListener("pointermove", (e) => { if (this.brushEnabled && e.buttons) { this.paint(e); } });
       }
 
       setMesh(vertices, faces) {
         if (this.meshObj) this.scene.remove(this.meshObj);
 
-        this.meshObj = buildThreeMesh(vertices, faces, 0x9b9b9b, 0.9);
+        this.vertices = vertices;
+        this.faces = faces;
+
+        this.selectedFaces.clear();   // 🔥 IMPORTANT FIX
+
+        this.meshObj = buildMesh(vertices, faces);
         this.scene.add(this.meshObj);
-
-        const bbox = new THREE.Box3().setFromObject(this.meshObj);
-        const center = new THREE.Vector3();
-        bbox.getCenter(center);
-
-        this.orbit.target.copy(center);
-        this.roiBox.position.copy(center);
-
-        const size = new THREE.Vector3();
-        bbox.getSize(size);
-        const s = Math.max(size.x, size.y, size.z);
-        const roiEdge = s * 0.25 || 20;
-        this.roiBox.scale.set(roiEdge / 20, roiEdge / 20, roiEdge / 20);
-
-        this.syncROIInputsFromBox();
       }
 
-      syncROIInputsFromBox() {
-        const box = new THREE.Box3().setFromObject(this.roiBox);
-        const min = box.min;
-        const max = box.max;
 
-        document.getElementById(`x_min_${this.side}`).value = min.x.toFixed(2);
-        document.getElementById(`x_max_${this.side}`).value = max.x.toFixed(2);
-        document.getElementById(`y_min_${this.side}`).value = min.y.toFixed(2);
-        document.getElementById(`y_max_${this.side}`).value = max.y.toFixed(2);
-        document.getElementById(`z_min_${this.side}`).value = min.z.toFixed(2);
-        document.getElementById(`z_max_${this.side}`).value = max.z.toFixed(2);
+      toggleBrush() {
+        this.brushEnabled = !this.brushEnabled;
+        this.orbit.enabled = !this.brushEnabled;
+
+        const btn = document.getElementById(`toggleBrush_${this.side}`);
+        btn.innerText = this.brushEnabled ? "Brush Mode ON" : "Brush Mode OFF";
       }
+
+
+      clearBrush() {
+        this.selectedFaces.clear();
+        // Reset colors to default gray
+        if (!this.meshObj) return;
+        const colorAttr = this.meshObj.geometry.attributes.color;
+        for (let i = 0; i < colorAttr.array.length; i += 3) {
+          colorAttr.array[i] = 0.61;
+          colorAttr.array[i + 1] = 0.61;
+          colorAttr.array[i + 2] = 0.61;
+        }
+        colorAttr.needsUpdate = true;
+      }
+
+
+      paint(event) {
+        const rect = this.renderer.domElement.getBoundingClientRect();
+        this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+        const hits = this.raycaster.intersectObject(this.meshObj);
+        if (!hits.length) return;
+
+        const hitPoint = hits[0].point;
+        const brushRadius = parseFloat(document.getElementById(`brushSize_${this.side}`).value);
+
+        for (let fi = 0; fi < this.faces.length; fi++) {
+          const faceVerts = this.faces[fi].map(idx => new THREE.Vector3(...this.vertices[idx]));
+          const dist = faceVerts.reduce((d, v) => Math.min(d, v.distanceTo(hitPoint)), Infinity);
+
+          if (dist <= brushRadius) {
+            if (this.eraserEnabled) {
+              if (this.selectedFaces.has(fi)) {
+                this.selectedFaces.delete(fi);
+                this.unhighlightFace(fi);
+              }
+            } else {
+              if (!this.selectedFaces.has(fi)) {
+                this.selectedFaces.add(fi);
+                this.highlightFace(fi);
+              }
+            }
+          }
+        }
+      }
+
+
+      highlightFace(faceIndex) {
+        const colorAttr = this.meshObj.geometry.attributes.color;
+        const i = faceIndex * 9;
+        for (let k = 0; k < 9; k += 3) { colorAttr.array[i + k] = 1; colorAttr.array[i + k + 1] = 0; colorAttr.array[i + k + 2] = 0; }
+        colorAttr.needsUpdate = true;
+      }
+
+      unhighlightFace(faceIndex) {
+        if (!this.meshObj) return;
+        const colorAttr = this.meshObj.geometry.attributes.color;
+        const i = faceIndex * 9;
+        for (let k = 0; k < 9; k += 3) {
+          colorAttr.array[i + k] = 0.61;
+          colorAttr.array[i + k + 1] = 0.61;
+          colorAttr.array[i + k + 2] = 0.61;
+        }
+        colorAttr.needsUpdate = true;
+      }
+
+      toggleEraser() {
+        this.eraserEnabled = !this.eraserEnabled;
+        const btn = document.getElementById(`toggleEraser_${this.side}`);
+        btn.innerText = this.eraserEnabled ? "Eraser ON" : "Eraser OFF";
+
+        // optionally disable brush while eraser is active
+        // this.brushEnabled = !this.eraserEnabled;
+        // document.getElementById(`toggleBrush_${this.side}`).innerText = this.brushEnabled ? "Brush Mode ON" : "Brush Mode OFF";
+      }
+
+
+
+      buildSelectedMesh() {
+        if (!this.faces || !this.vertices || this.selectedFaces.size === 0) {
+          return { verts: [], faces: [] };
+        }
+
+        const verts = [];
+        const faces = [];
+        const vertMap = new Map();
+
+        for (const fi of this.selectedFaces) {
+          if (!this.faces[fi]) continue;
+
+          const face = [];
+          for (let i = 0; i < 3; i++) {
+            const idx = this.faces[fi][i];
+            if (idx === undefined) continue;
+
+            if (!vertMap.has(idx)) {
+              vertMap.set(idx, verts.length);
+              verts.push(this.vertices[idx]);
+            }
+            face.push(vertMap.get(idx));
+          }
+          if (face.length === 3) faces.push(face);
+        }
+
+        return { verts, faces };
+      }
+
     }
 
-    const viewers = {
-      left: new EarViewer("left"),
-      right: new EarViewer("right"),
-    };
+    const viewers = { left: new EarViewer("left"), right: new EarViewer("right") };
 
     async function preview(side) {
-      const fileInput = document.getElementById(`file_${side}`);
-      if (!fileInput.files.length) {
-        alert("Upload a mesh first");
-        return;
-      }
-
-      const form = new FormData();
-      form.append("file", fileInput.files[0]);
-
-      document.getElementById(`info_${side}`).innerText = "Uploading preview...";
-
-      const res = await fetch("/upload_preview", {
-        method: "POST",
-        body: form,
-      });
+      const input = document.getElementById(`file_${side}`);
+      if (!input.files.length) { alert("Upload a mesh first"); return; }
+      const form = new FormData(); form.append("file", input.files[0]);
+      document.getElementById(`info_${side}`).innerText = "Uploading...";
+      const res = await fetch("/upload_preview", { method: "POST", body: form });
       const data = await res.json();
-
       state[side] = { job_id: data.job_id };
-
       viewers[side].setMesh(data.vertices, data.faces);
-
-      document.getElementById(`info_${side}`).innerText =
-        `Uploaded | Watertight: ${data.watertight} | Faces: ${data.faces_count} | Vertices: ${data.vertices_count}`;
+      document.getElementById(`info_${side}`).innerText = `Uploaded | Faces:${data.faces_count} | Vertices:${data.vertices_count}`;
     }
 
-    async function process(side) {
-      if (!state[side] || !state[side].job_id) {
-        alert("Preview first!");
-        return;
-      }
+    async function processBrush(side) {
+      if (!state[side]?.job_id) { alert("Preview first"); return; }
+      const mesh = viewers[side].buildSelectedMesh();
+      if (mesh.faces.length === 0) { alert("Paint at least one face"); return; }
+
+      state[side].roi_mesh = mesh;
 
       const form = new FormData();
       form.append("job_id", state[side].job_id);
-      form.append("x_min", document.getElementById(`x_min_${side}`).value);
-      form.append("x_max", document.getElementById(`x_max_${side}`).value);
-      form.append("y_min", document.getElementById(`y_min_${side}`).value);
-      form.append("y_max", document.getElementById(`y_max_${side}`).value);
-      form.append("z_min", document.getElementById(`z_min_${side}`).value);
-      form.append("z_max", document.getElementById(`z_max_${side}`).value);
+      form.append("verts", JSON.stringify(mesh.verts));
+      form.append("faces", JSON.stringify(mesh.faces));
 
-      document.getElementById(`info_${side}`).innerText =
-        "Processing ROI & closing...";
+      document.getElementById(`info_${side}`).innerText = "Processing painted ROI...";
 
-      const res = await fetch("/process", {
-        method: "POST",
-        body: form,
-      });
+      const res = await fetch("/process_brush", { method: "POST", body: form });
       const data = await res.json();
 
-      state[side].volume = data.volume;
-      state[side].watertight = data.watertight;
-
-      const meshRes = await fetch(`/download/${data.job_id}`);
+      const meshRes = await fetch(data.download_url);
       const blob = await meshRes.blob();
       const text = await blob.text();
       const closedMesh = parsePLY(text);
@@ -409,60 +388,116 @@
       document.getElementById(`info_${side}`).innerText =
         `Closed Mesh | Volume: ${Math.abs(data.volume.toFixed(3))} mm³ | Watertight: ${data.watertight}`;
 
-      if (
-        state.left &&
-        state.right &&
-        state.left.volume &&
-        state.right.volume
-      ) {
+      state[side].volume = data.volume;
+
+      document.getElementById(`saveBtn_${side}`).disabled = false;
+
+      if (state.left?.volume && state.right?.volume) {
         const volLeftAbs = Math.abs(state.left.volume);
         const volRightAbs = Math.abs(state.right.volume);
-
-        const diffPerc = (
-          ((volRightAbs - volLeftAbs) / volLeftAbs) * 100
-        ).toFixed(2);
-
+        const diffPerc = ((volRightAbs - volLeftAbs) / volLeftAbs * 100).toFixed(2);
         document.getElementById("info").innerHTML = `
-            <div style="text-align:center; font-size:24px; font-weight:bold; line-height:1.5;">
-              Left Ear Volume: ${volLeftAbs.toFixed(3)} mm³ <br>
-              Right Ear Volume: ${volRightAbs.toFixed(3)} mm³ <br>
-              Asymmetry: ${diffPerc}%  
-            </div>
-          `;
+        <div style="text-align:center; font-weight:bold;">
+            Left Ear Volume: ${volLeftAbs.toFixed(3)} mm³ <br>
+            Right Ear Volume: ${volRightAbs.toFixed(3)} mm³ <br>
+            Asymmetry: ${diffPerc}%
+        </div>
+    `;
       }
     }
-    
+
+    let saveSide = null;
+
+    function openSaveModal(side) {
+      if (!state[side]?.volume) {
+        alert("Process ROI first");
+        return;
+      }
+      saveSide = side;
+      document.getElementById("saveModal").style.display = "flex";
+    }
+
+    function closeSaveModal() {
+      document.getElementById("saveModal").style.display = "none";
+      saveSide = null;
+    }
+
+    async function confirmSave() {
+      const cls = document.querySelector("input[name='classification']:checked");
+      if (!cls) { alert("Select classification"); return; }
+
+      const otherText = document.getElementById("otherText").value;
+      const mesh = state[saveSide].roi_mesh;
+
+      const payload = {
+        is_left: saveSide === "left",
+        is_right: saveSide === "right",
+        original_model_url: `/uploads/${state[saveSide].job_id}.ply`,
+        generated_model_url: `/download/${state[saveSide].job_id}`,
+        roi_vertices: mesh.verts,
+        roi_faces: mesh.faces,
+        volume_mm3: Math.abs(state[saveSide].volume),
+        watertight: true,
+        is_pathological: cls.value === "pathological",
+        is_non_pathological: cls.value === "non",
+        is_other: cls.value === "other",
+        other_text: cls.value === "other" ? otherText : null
+      };
+
+      const res = await fetch("/save_case", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      alert("Saved ✔ Case ID: " + data.case_id);
+      closeSaveModal();
+    }
 
 
-    window.preview = preview;    
-    window.process = process;
+    window.openSaveModal = openSaveModal;
+    window.closeSaveModal = closeSaveModal;
+    window.confirmSave = confirmSave;
+
+
+
+    window.preview = preview;
+    window.toggleBrush = (side) => viewers[side].toggleBrush();
+    window.processBrush = processBrush;
+    window.clearBrush = (side) => viewers[side].clearBrush();
+    window.toggleEraser = (side) => viewers[side].toggleEraser();
+
+
+
   </script>
-  <div id="saveModal" class="modal hidden">
-      <div class="modal-content">
-        <h3>Save Analysis</h3>
+  <footer style="padding: 0.5rem;">
+    All code is protected by © copyright. Use for academic or company purposes is not permitted without contact the
+    authors first.
+  </footer>
+  <div id="saveModal" style="
+  display:none;
+  position:fixed;
+  top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,0.7);
+  align-items:center;
+  justify-content:center;
+">
+    <div style="background:#1e1e1e;padding:20px;border-radius:6px;">
+      <h3>Save Case</h3>
 
-        <label>
-          Is this scanning:
-          <select id="classification">
-            <option value="pathological">Pathological</option>
-            <option value="non_pathological">Non-pathological</option>
-            <option value="other">Other</option>
-          </select>
-        </label>
+      <label><input type="radio" name="classification" value="pathological"> Pathological</label><br>
+      <label><input type="radio" name="classification" value="non"> Non pathological</label><br>
+      <label><input type="radio" name="classification" value="other"> Other</label><br>
 
-        <div id="otherBox" class="hidden">
-          <input id="otherText" placeholder="Describe…" />
-        </div>
+      <input id="otherText" placeholder="Other description" style="width:100%;margin-top:5px;"><br><br>
 
-        <textarea id="comment" placeholder="Comment (optional)"></textarea>
-
-        <div class="actions">
-          <button onclick="closeSave()">Cancel</button>
-          <button onclick="confirmSave()">Save</button>
-        </div>
-      </div>
+      <button onclick="confirmSave()">Save</button>
+      <button onclick="closeSaveModal()">Cancel</button>
     </div>
+  </div>
+
 </body>
-<!-- pop up-->
-    
+
+
 </html>
