@@ -53,8 +53,8 @@ def normalize_and_fix_mesh(
     """
 
     # --- pulizia base
-    mesh.remove_duplicate_faces()
-    mesh.remove_degenerate_faces()
+    # mesh.remove_duplicate_faces()
+    # mesh.remove_degenerate_faces()
     mesh.remove_unreferenced_vertices()
     mesh.merge_vertices()
 
@@ -135,7 +135,7 @@ async def process_brush(
     return {
         "job_id": job_id,
         "watertight": bool(fixed.is_watertight),
-        "volume_mm3": float(fixed.volume),
+        "volume": float(fixed.volume),
         "faces": int(len(fixed.faces)),
         "vertices": int(len(fixed.vertices)),
         "download_url": f"/download/{job_id}"
