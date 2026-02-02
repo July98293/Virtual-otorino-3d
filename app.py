@@ -10,6 +10,7 @@ import trimesh
 from istimo import close_all_holes
 from database import init_db, insert_ear_case
 
+
 # --------------------
 # Paths
 # --------------------
@@ -20,6 +21,7 @@ FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
 
 os.makedirs(INPUT_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
+
 
 # --------------------
 # App
@@ -35,8 +37,48 @@ app.add_middleware(
 
 app.mount("/frontend", StaticFiles(directory=FRONTEND_DIR), name="frontend")
 
-# CREATE TABLE ON STARTUP
 init_db()
+
+
+# --------------------
+# Utils
+# --------------------
+def normalize_and_fix_mesh(
+    mesh: trimesh.Trimesh,
+    assume_input_unit="mm"
+) -> trimesh.Trimesh:
+    """
+    Fix normali, chiude buchi, normalizza scala in mm
+    e rende la mesh affidabile per il volume.
+    """
+
+    # --- pulizia base
+    mesh.remove_duplicate_faces()
+    mesh.remove_degenerate_faces()
+    mesh.remove_unreferenced_vertices()
+    mesh.merge_vertices()
+
+    # --- normali
+    mesh.rezero()
+    mesh.fix_normals()
+    mesh.remove_infinite_values()
+
+    # --- chiusura
+    if not mesh.is_watertight:
+        mesh = close_all_holes(mesh)
+
+    # --- scala → mm
+    scale_map = {
+        "m": 1000.0,
+        "cm": 10.0,
+        "mm": 1.0
+    }
+
+    scale_factor = scale_map[assume_input_unit]
+    mesh.apply_scale(scale_factor)
+
+    return mesh
+
 
 # --------------------
 # Routes
@@ -60,9 +102,9 @@ async def upload_preview(file: UploadFile = File(...)):
         "job_id": job_id,
         "vertices": mesh.vertices.tolist(),
         "faces": mesh.faces.tolist(),
-        "watertight": mesh.is_watertight,
-        "faces_count": len(mesh.faces),
-        "vertices_count": len(mesh.vertices)
+        "watertight": bool(mesh.is_watertight),
+        "faces_count": int(len(mesh.faces)),
+        "vertices_count": int(len(mesh.vertices))
     }
 
 
@@ -75,18 +117,27 @@ async def process_brush(
     verts = np.array(json.loads(verts))
     faces = np.array(json.loads(faces))
 
-    mesh = trimesh.Trimesh(vertices=verts, faces=faces, process=True)
-    closed = close_all_holes(mesh)
+    mesh = trimesh.Trimesh(
+        vertices=verts,
+        faces=faces,
+        process=False
+    )
+
+    # 🔑 FIX COMPLETO
+    fixed = normalize_and_fix_mesh(
+        mesh,
+        assume_input_unit="mm"   # ← cambia se sai che arrivano in m
+    )
 
     output_path = os.path.join(OUTPUT_DIR, f"{job_id}_closed.ply")
-    closed.export(output_path, file_type="ply", encoding="ascii")
+    fixed.export(output_path, file_type="ply", encoding="ascii")
 
     return {
         "job_id": job_id,
-        "watertight": bool(closed.is_watertight),
-        "volume": float(closed.volume),
-        "faces": int(len(closed.faces)),
-        "vertices": int(len(closed.vertices)),
+        "watertight": bool(fixed.is_watertight),
+        "volume_mm3": float(fixed.volume),
+        "faces": int(len(fixed.faces)),
+        "vertices": int(len(fixed.vertices)),
         "download_url": f"/download/{job_id}"
     }
 
@@ -98,7 +149,7 @@ def download(job_id: str):
 
 
 # --------------------
-# SAVE CASE (FIXED)
+# SAVE CASE
 # --------------------
 @app.post("/save_case")
 def save_case(payload: dict = Body(...)):
@@ -112,7 +163,7 @@ def save_case(payload: dict = Body(...)):
         generated_model_url=payload["generated_model_url"],
         roi_vertices=payload["roi_vertices"],
         roi_faces=payload["roi_faces"],
-        volume_mm3=payload["volume_mm3"],
+        volume_mm3=payload["volume_mm3"],   # 🔑 coerente
         watertight=payload["watertight"],
         is_pathological=payload["is_pathological"],
         is_non_pathological=payload["is_non_pathological"],
